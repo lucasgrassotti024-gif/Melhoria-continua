@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { useProject } from './context/ProjectContext';
+import { useAuth } from './context/AuthContext';
 import { Navbar, MainView } from './components/layout/Navbar';
 import { DMAICHeader } from './components/layout/DMAICHeader';
+import { AuthModal } from './components/auth/AuthModal';
 import { ProjectDashboard } from './features/dashboard/ProjectDashboard';
 import { ToolLibrary } from './features/library/ToolLibrary';
 import { DefinePage } from './pages/DefinePage';
@@ -9,10 +11,29 @@ import { MeasurePage } from './pages/MeasurePage';
 import { AnalyzePage } from './pages/AnalyzePage';
 import { ImprovePage } from './pages/ImprovePage';
 import { ControlPage } from './pages/ControlPage';
+import { Loader2 } from 'lucide-react';
 
 export const App: React.FC = () => {
+  const { currentUser, loading } = useAuth();
   const { project } = useProject();
   const [currentView, setCurrentView] = useState<MainView>('dmaic');
+
+  // Estado de carregamento da sessão Firebase
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-white">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-500 mb-3" />
+        <p className="text-xs font-semibold text-slate-400 tracking-wider uppercase">
+          Carregando Sessão DMAIC...
+        </p>
+      </div>
+    );
+  }
+
+  // Se não autenticado, bloqueia o acesso e exibe a tela de Login/Cadastro
+  if (!currentUser) {
+    return <AuthModal />;
+  }
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans">
